@@ -86,3 +86,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes highlight {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(219, 234, 254, 0.3); /* blue-100 with opacity */
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.scroll-highlight {
+    animation: highlight 1s ease-out;
+}
+
+.scroll-highlight-target {
+    scroll-margin: 2rem;
+}
