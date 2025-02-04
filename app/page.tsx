@@ -7,16 +7,31 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { companyFinancials } from './data/companyFinancials';
 import Link from 'next/link';
 
+interface Company {
+    id: string;
+    name: string;
+    exchange: string;
+    country: string;
+}
+
+interface Country {
+    id: string;
+    name: string;
+    flag: string;
+    currency: string;
+    symbol: string;
+}
+
 export default function Page() {
-    const [shares, setShares] = useState('');
-    const [selectedCountry, setSelectedCountry] = useState({
+    const [shares, setShares] = useState<string>('');
+    const [selectedCountry, setSelectedCountry] = useState<Country>({
         id: 'US',
         name: 'United States',
         flag: '🇺🇸',
         currency: 'USD',
         symbol: '$',
     });
-    const [selectedCompany, setSelectedCompany] = useState(null);
+    const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -84,10 +99,12 @@ export default function Page() {
         if (!financials) return null;
 
         const sharePrice = getSharePrice(selectedCompany);
-        const ownershipPercentage = (shares / (financials.sharesOutstanding * 1000000)) * 100;
+        const sharesNum = parseFloat(shares); // Convert string to number
+        
+        const ownershipPercentage = (sharesNum / (financials.sharesOutstanding * 1000000)) * 100;
         const revenueShare = (financials.annualRevenue * 1000000) * (ownershipPercentage / 100);
         const profitShare = (financials.annualProfit * 1000000) * (ownershipPercentage / 100);
-        const quarterlyDividend = shares * financials.quarterlyDividend;
+        const quarterlyDividend = sharesNum * financials.quarterlyDividend;
         const annualDividend = quarterlyDividend * 4;
         
         // Calculate yields
@@ -243,7 +260,7 @@ export default function Page() {
                         </h1>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
                             Ever wondered what it actually means to own shares? With Portionary,
-                            you'll see exactly what you own and how it works—without the
+                            you&apos;ll see exactly what you own and how it works—without the
                             finance-industry fluff.
                         </p>
                         <motion.button
@@ -339,7 +356,7 @@ export default function Page() {
                                             <Combobox.Input
                                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
                                                 placeholder="Search by name or ticker"
-                                                displayValue={(company) => company?.name || ''}
+                                                displayValue={(company: Company | null) => company?.name || ''}
                                                 onChange={(event) =>
                                                     setQuery(event.target.value)
                                                 }
@@ -632,6 +649,7 @@ export default function Page() {
                                             whileTap={{ scale: 0.95 }}
                                             className="text-blue-900 border border-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
                                             onClick={() => {
+                                                if (!metrics) return;
                                                 const shareText = `Check out my slice of ${selectedCompany.name}: ${metrics.ownershipPercentage}% ownership generating ${selectedCountry.symbol}${metrics.annualDividend} in annual dividends!`;
                                                 if (navigator.share) {
                                                     navigator.share({
