@@ -4,7 +4,14 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    basePath: '/portionary', // Replace with your repo name
+    basePath: process.env.NODE_ENV === 'production' ? '/portionary' : '',
+    webpack: (config, { isServer }) => {
+        // Ignore punycode warning
+        config.ignoreWarnings = [
+            { module: /node_modules\/punycode/ }
+        ];
+        return config;
+    }
 }
 
 module.exports = nextConfig 
